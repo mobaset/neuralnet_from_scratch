@@ -2,6 +2,7 @@ import numpy as np
 import random
 import activations
 import cost_funcs
+import time
 
 # NN class 
 class NeuralNet(object):
@@ -54,6 +55,7 @@ class NeuralNet(object):
         n = len(training_data)
 
         for j in range(epochs):
+            t = time.time()
             #shuffle the training data in every iteration
             random.shuffle(training_data) 
             # split the training data to batches according to the parameter mini_batch_size
@@ -63,11 +65,12 @@ class NeuralNet(object):
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, learning_rate, cost_func)
             
+            t = (time.time() - t)
             if test_data:
-                print("Epoch {0}: {1} / {2}".format(j, self.evaluate(test_data), n_test))
+                print("Epoch {0}:\t {1} / {2} | Completed in {3} seconds".format(j, self.evaluate(test_data), n_test, t))
             
             else:
-                print("Epoch {0} completed".format(j))
+                print("Epoch {0}\t completed in {1} seconds".format(j, time.localtime(t)))
 
     def update_mini_batch(self, mini_batch, learning_rate, cost_func):
         '''Update network's weight and biases by applying gradient descent using backpropagation 
@@ -129,4 +132,3 @@ class NeuralNet(object):
     def predict(self):
         #TODO implement predict method
         pass
-        
