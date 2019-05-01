@@ -7,7 +7,8 @@ def quadratic_cost_prime(output_activations, y):
 
 
 def deserialize(name):
-    return getattr(locals(), name)
+    module = __import__('cost_funcs')
+    return getattr(module, name)
 
 
 def get(identifier):

@@ -7,11 +7,12 @@ def sigmoid(z, is_derivative=False):
     if is_derivative:
         return sigmoid(z) * (1-sigmoid(z))
     else:
-        return 1.0 / 1.0 + np.exp(-z)
+        return 1.0 / (1.0 + np.exp(-z))
 
 
 def deserialize(name):
-    return getattr(locals(), name)
+    module = __import__('activations')
+    return getattr(module, name)
 
 
 def get(identifier):
