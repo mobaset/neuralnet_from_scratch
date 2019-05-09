@@ -41,13 +41,14 @@ def load_data_wrapper(file, image_size, num_classes):
 
     tr_d, va_d, te_d = load_data(file)
     # reformating training data
-    training_inputs = [np.reshape(x, (image_size, 1)) for x in tr_d[0]]
-    training_results = [vectorize_y(num_classes, y) for y in tr_d[1]]
-    training_data = list(zip(training_inputs, training_results))
+    x_training = np.array([np.reshape(x, (image_size, 1)) for x in tr_d[0]])
+    y_training = np.array([vectorize_y(num_classes, y) for y in tr_d[1]])
     # reformating validation data
-    validation_inputs = [np.reshape(x, (image_size, 1)) for x in va_d[0]]
-    validation_data = list(zip(validation_inputs, va_d[1]))
+    x_validation = np.array([np.reshape(x, (image_size, 1)) for x in va_d[0]])
+    y_validation =  va_d[1]
     # reformating test data
-    test_inputs = [np.reshape(x, (image_size, 1)) for x in te_d[0]]
-    test_data = list(zip(test_inputs, te_d[1]))
-    return (training_data, validation_data, test_data)
+    x_test = np.array([np.reshape(x, (image_size, 1)) for x in te_d[0]])
+    y_test = te_d[1]
+    
+    
+    return (x_training, y_training), (x_validation, y_validation), (x_test, y_test)
