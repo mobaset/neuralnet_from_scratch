@@ -114,6 +114,9 @@ class NeuralNet(object):
 
         for l in range(2, self.num_layers):
             z = zs[-l]
+            # NOTE: this implementation of backprog only applies to sigmiod activation function.
+            # If other activation function need to be used, the below error expression below need 
+            #   to be updated to reflect other activation fucntion
             output_error = np.dot(self.weights[-l+1].transpose(), output_error) * self.activation.prime(z)
             nabla_b[-l] = output_error
             nabla_w[-l] = np.dot(output_error, activations[-l-1].transpose())
