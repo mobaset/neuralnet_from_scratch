@@ -7,7 +7,7 @@ import time
 # NN class 
 class NeuralNet(object):
 
-    def __init__(self, layer_sizes, activation, reg_lambda=0.01):
+    def __init__(self, layer_sizes, activation, cost, reg_lambda=0.01):
         '''        
         Arguments:
             layer_sizes {list} -- Initialize NN with number of layers and number of units per layer.
@@ -22,6 +22,7 @@ class NeuralNet(object):
         self.layer_sizes = layer_sizes
         self.activation = activations.get(activation)
         self.reg_lambda = reg_lambda
+        self.cost = cost_funcs.get(cost)
         
         self.biases = [np.random.randn(y, 1) for y in layer_sizes[1:]]
         self.weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
@@ -33,10 +34,10 @@ class NeuralNet(object):
             input {Numpy vector} -- the output from the previous layer or the input layer
         '''
         for b, w in zip(self.biases, self.weights): # loop over each layer
-            input = self.activation(np.dot(w, input) + b)
+            input = self.activation.fn(np.dot(w, input) + b)
         return input
 
-    def SGD(self, training_data, epochs, mini_batch_size, learning_rate, cost_func, test_data=None):
+    def SGD(self, training_data, epochs, mini_batch_size, learning_rate, test_data=None):
         '''Train the neural network using stochastic gradient descent. 
         
         Arguments:
@@ -61,16 +62,16 @@ class NeuralNet(object):
             
             # iterate over every mini batch to calculate the gradient and perform backpropagation
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch, learning_rate, cost_func)
+                self.update_mini_batch(mini_batch, learning_rate)
             
-            t = (time.time() - t)
+            t = round((time.time() - t), 2)
             if test_data:
-                print("Epoch {0}:\t {1} / {2} | Completed in {3} seconds".format(j, self.evaluate(test_data), n_test, t))
+                print(f"Epoch {j}:\t {self.evaluate(test_data)} / {n_test} | Completed in {t} seconds")
             
             else:
-                print("Epoch {0}\t completed in {1} seconds".format(j, time.localtime(t)))
+                print(f"Epoch {j}\t completed in {t} seconds")
 
-    def update_mini_batch(self, mini_batch, learning_rate, cost_func):
+    def update_mini_batch(self, mini_batch, learning_rate):
         '''Update network's weight and biases by applying gradient descent using backpropagation 
             to a single mini batch
         
@@ -82,7 +83,7 @@ class NeuralNet(object):
         nabla_w = [np.zeros(w.shape) for w in self.weights]
 
         for x, y in mini_batch:
-            delta_nabla_b, delta_nabla_w = self.back_propogation(x, y, cost_func)
+            delta_nabla_b, delta_nabla_w = self.back_propogation(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
         
@@ -90,7 +91,7 @@ class NeuralNet(object):
         self.biases = [b-(learning_rate/len(mini_batch))*nb for b, nb in zip(self.biases, nabla_b)]
         self.weights = [w-(learning_rate/len(mini_batch))* nw for w, nw in zip(self.weights, nabla_w)]
 
-    def back_propogation(self, x, y, cost_func):
+    def back_propogation(self, x, y):
                 
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
@@ -103,17 +104,17 @@ class NeuralNet(object):
         for w, b in zip(self.weights, self.biases): #loop over each layer
             z = np.dot(w, activation) + b
             zs.append(z)
-            activation = self.activation(z)
+            activation = self.activation.fn(z)
             activations.append(activation)
 
         #backward pass
-        output_error = cost_funcs.get(cost_func)(activations[-1], y) * self.activation(zs[-1], is_derivative=True)
+        output_error = self.cost.prime(zs[-1], activations[-1], y)
         nabla_b[-1] = output_error
         nabla_w[-1] = np.dot(output_error, activations[-2].transpose())
 
         for l in range(2, self.num_layers):
             z = zs[-l]
-            output_error = np.dot(self.weights[-l+1].transpose(), output_error) * self.activation(z, is_derivative=True)
+            output_error = np.dot(self.weights[-l+1].transpose(), output_error) * self.activation.prime(z)
             nabla_b[-l] = output_error
             nabla_w[-l] = np.dot(output_error, activations[-l-1].transpose())
         

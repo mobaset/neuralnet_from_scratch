@@ -3,11 +3,15 @@
 import numpy as np
 import six
 
-def sigmoid(z, is_derivative=False):
-    if is_derivative:
-        return sigmoid(z) * (1-sigmoid(z))
-    else:
+class Sigmiod():
+
+    @staticmethod
+    def fn(z):
         return 1.0 / (1.0 + np.exp(-z))
+    
+    @staticmethod
+    def prime(z):
+        return Sigmiod.fn(z) * (1-Sigmiod.fn(z))
 
 
 def deserialize(name):
@@ -17,7 +21,7 @@ def deserialize(name):
 
 def get(identifier):
     if identifier == None:
-        return sigmoid
+        return Sigmiod
 
     if isinstance(identifier, six.string_types):
         return deserialize(str(identifier))
