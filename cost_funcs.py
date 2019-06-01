@@ -11,9 +11,20 @@ class QuadraticCost():
         return 0.5 * np.linalg.norm(a-y) **2
 
     @staticmethod
-    def prime(z, a, y):
+    def delta(z, a, y):
         return (a-y) * Sigmiod.prime(z)
-        
+
+
+class CrossEntropy():
+    
+    @staticmethod
+    def fn(a, y):
+        return np.sum(np.nan_to_num((-y * np.log(a)) - ((1 - y) * np.log(1 - a))))
+
+    @staticmethod
+    def delta(z, a, y):
+        return (a - y)
+
 
 def deserialize(name):
     module = __import__('cost_funcs')
@@ -22,7 +33,7 @@ def deserialize(name):
 
 def get(identifier):
     if identifier == None:
-        return QuadraticCost
+        return CrossEntropy
 
     if isinstance(identifier, six.string_types):
         return deserialize(str(identifier))

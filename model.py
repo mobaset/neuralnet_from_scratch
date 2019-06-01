@@ -108,12 +108,15 @@ class NeuralNet(object):
             activations.append(activation)
 
         #backward pass
-        output_error = self.cost.prime(zs[-1], activations[-1], y)
+        output_error = self.cost.delta(zs[-1], activations[-1], y)
         nabla_b[-1] = output_error
         nabla_w[-1] = np.dot(output_error, activations[-2].transpose())
 
         for l in range(2, self.num_layers):
             z = zs[-l]
+            # NOTE: this implementation of backprog only applies to sigmiod activation function.
+            # If other activation function need to be used, the below error expression below need 
+            #   to be updated to reflect other activation fucntion
             output_error = np.dot(self.weights[-l+1].transpose(), output_error) * self.activation.prime(z)
             nabla_b[-l] = output_error
             nabla_w[-l] = np.dot(output_error, activations[-l-1].transpose())
