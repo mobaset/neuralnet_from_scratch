@@ -108,7 +108,7 @@ class NeuralNet(object):
             activations.append(activation)
 
         #backward pass
-        output_error = self.cost.prime(zs[-1], activations[-1], y)
+        output_error = self.cost.delta(zs[-1], activations[-1], y)
         nabla_b[-1] = output_error
         nabla_w[-1] = np.dot(output_error, activations[-2].transpose())
 
