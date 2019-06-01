@@ -4,9 +4,6 @@ import six
 import numpy as np
 from activations import Sigmiod
 
-def quadratic_cost_prime(output_activations, y):
-    return (output_activations - y)
-
 class QuadraticCost():
 
     @staticmethod
