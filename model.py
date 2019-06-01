@@ -72,26 +72,25 @@ class NeuralNet(object):
         n = training_data[0].shape[0]
 
         for j in range(epochs):
-            # print('====Epoch {0}===='.format(j))
             t = time.time()
             #shuffle the training data in every iteration
-            x_shuffled = self.shuffle_data(training_data[0])
-            y_shuffled = self.shuffle_data(training_data[1])
+            # x_shuffled = self.shuffle_data(training_data[0])
+            # y_shuffled = self.shuffle_data(training_data[1])
+            random.shuffle(training_data[0])
+            random.shuffle(training_data[1])
             # split the training data to batches according to the parameter mini_batch_size
             chunk_size = round(n / mini_batch_size) # determine how many sub arrays 
-            x_mini_batches = np.array_split(x_shuffled, chunk_size)
-            y_mini_batches = np.array_split(y_shuffled, chunk_size)
-            # x_mini_batches = np.array([x_shuffled[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)])
-            # y_mini_batches = np.array([y_shuffled[k:k+mini_batch_size] for k in range(0, n, mini_batch_size)])
+            x_mini_batches = np.array_split(training_data[0], chunk_size)
+            y_mini_batches = np.array_split(training_data[1], chunk_size)
             
             # iterate over every mini batch to calculate the gradient and perform backpropagation
-            i = 0
+            # i = 0
             for x_mini_batch, y_mini_batch in zip(x_mini_batches, y_mini_batches):
-                i += 1
+                # i += 1
                 # print('____Mini batch {0}____'.format(i))
                 self.update_mini_batch(x_mini_batch, y_mini_batch, learning_rate, cost_func, is_vectorized)
             
-            t = (time.time() - t)
+            t = time.time() - t
             if test_data is not None:
                 print("Epoch {0}:\t {1} / {2} | Completed in {3} seconds".format(j+1, self.evaluate(test_data), n_test, t))
             
@@ -120,23 +119,22 @@ class NeuralNet(object):
                 nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
         
         # updating the biases and weights after running the packpropagation
+        self.weights = [w-(learning_rate/x_mini_batch.shape[0])*nw for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-(learning_rate/x_mini_batch.shape[0])*nb for b, nb in zip(self.biases, nabla_b)]
-        self.weights = [w-(learning_rate/x_mini_batch.shape[0])* nw for w, nw in zip(self.weights, nabla_w)]
 
     def back_propogation(self, x, y, cost_func, is_vectorized):
                 
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
 
-
         # forward pass
         # print('Forward pass...')
         activation = x
         activations = [x] #list of activations per layer
         zs = [] # list of weighted inputs per layer
-        i = 0
+        # i = 0
         for w, b in zip(self.weights, self.biases): #loop over each layer
-            i += 1
+            # i += 1
             # print('----Layer {0}---- w:{1}\t a:{2}\t b:{3}'.format(i, w.shape, activation.shape, b.shape))
             if is_vectorized:
                 z = np.matmul(w, activation) + b
@@ -153,8 +151,8 @@ class NeuralNet(object):
         nabla_b[-1] = output_error
         if is_vectorized:
             nabla_w[-1] = np.matmul(output_error, activations[-2].transpose((0,2,1)))
-            nabla_b[-1] = np.sum(nabla_b[-1], axis=0)
-            nabla_w[-1] = np.sum(nabla_w[-1], axis=0)
+            # nabla_b[-1] = np.sum(nabla_b[-1], axis=0)
+            # nabla_w[-1] = np.sum(nabla_w[-1], axis=0)
         else:
             nabla_w[-1] = np.dot(output_error, activations[-2].transpose())
 
@@ -166,8 +164,8 @@ class NeuralNet(object):
                 nabla_w[-l] = np.matmul(output_error, activations[-l-1].transpose((0,2,1)))
                 
                 # summing over all inputs in mini batch
-                nabla_b[-l] = np.sum(nabla_b[-l], axis=0)
-                nabla_w[-l] = np.sum(nabla_w[-l], axis=0)
+                # nabla_b[-l] = np.sum(nabla_b[-l], axis=0)
+                # nabla_w[-l] = np.sum(nabla_w[-l], axis=0)
                 # print('nabla_b[{0}] shape ==> {1}'.format(l, np.array(nabla_b[-l]).shape))
                 # print('nabla_w[{0}] shape ==> {1}'.format(l, nabla_w[-l].shape))
             else:
@@ -178,7 +176,8 @@ class NeuralNet(object):
         return (nabla_b, nabla_w)
 
     def evaluate(self, test_data):
-        test_result = [(np.argmax(self.feed_forward(test_data[0][i])), test_data[1][i]) for i in range(test_data[0].shape[0])]
+        # test_result = [(np.argmax(self.feed_forward(test_data[0][i])), test_data[1][i]) for i in range(test_data[0].shape[0])]
+        test_result = [(np.argmax(self.feed_forward(x)), y) for (x, y) in zip(test_data[0], test_data[1])]
         return sum(int(x == y) for (x, y) in test_result)
 
     def fit(self):
