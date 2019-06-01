@@ -7,7 +7,7 @@ import time
 # NN class 
 class NeuralNet(object):
 
-    def __init__(self, layer_sizes, activation, reg_lambda=0.01, dropout_p=0.5):
+    def __init__(self, layer_sizes, activation, reg_lambda=0.01):
         '''        
         Arguments:
             layer_sizes {list} -- Initialize NN with number of layers and number of units per layer.
@@ -18,12 +18,10 @@ class NeuralNet(object):
             reg_lambda {float} -- regularization lambda value (default: {0.01})
             dropout_p {float} -- probability value for dropouts  (default: {0.5}) 
         '''
-        #TODO implement the dropout technique 
         self.num_layers = len(layer_sizes)
         self.layer_sizes = layer_sizes
         self.activation = activations.get(activation)
         self.reg_lambda = reg_lambda
-        self.dropout_p = dropout_p
         
         self.biases = [np.random.randn(y, 1) for y in layer_sizes[1:]]
         self.weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
@@ -125,10 +123,4 @@ class NeuralNet(object):
         test_result = [(np.argmax(self.feed_forward(x)), y) for (x, y) in test_data]
         return sum(int(x == y) for (x, y) in test_result)
 
-    def fit(self):
-        #TODO implement fit method
-        pass
 
-    def predict(self):
-        #TODO implement predict method
-        pass
