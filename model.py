@@ -83,7 +83,7 @@ class NeuralNet(object):
         nabla_w = [np.zeros(w.shape) for w in self.weights]
 
         for x, y in mini_batch:
-            delta_nabla_b, delta_nabla_w = self.back_propogation(x, y)
+            delta_nabla_b, delta_nabla_w = self.back_propagation(x, y)
             nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
         
@@ -91,7 +91,7 @@ class NeuralNet(object):
         self.biases = [b-(learning_rate/len(mini_batch))*nb for b, nb in zip(self.biases, nabla_b)]
         self.weights = [w-(learning_rate/len(mini_batch))* nw for w, nw in zip(self.weights, nabla_w)]
 
-    def back_propogation(self, x, y):
+    def back_propagation(self, x, y):
                 
         nabla_b = [np.zeros(b.shape) for b in self.biases]
         nabla_w = [np.zeros(w.shape) for w in self.weights]
@@ -108,18 +108,18 @@ class NeuralNet(object):
             activations.append(activation)
 
         #backward pass
-        output_error = self.cost.delta(zs[-1], activations[-1], y)
-        nabla_b[-1] = output_error
-        nabla_w[-1] = np.dot(output_error, activations[-2].transpose())
+        error = self.cost.delta(zs[-1], activations[-1], y)
+        nabla_b[-1] = error
+        nabla_w[-1] = np.dot(error, activations[-2].transpose())
 
         for l in range(2, self.num_layers):
             z = zs[-l]
-            # NOTE: this implementation of backprog only applies to sigmiod activation function.
+            # NOTE: this implementation of backprop only applies to sigmiod activation function.
             # If other activation function need to be used, the below error expression below need 
             #   to be updated to reflect other activation fucntion
-            output_error = np.dot(self.weights[-l+1].transpose(), output_error) * self.activation.prime(z)
-            nabla_b[-l] = output_error
-            nabla_w[-l] = np.dot(output_error, activations[-l-1].transpose())
+            error = np.dot(self.weights[-l+1].transpose(), error) * self.activation.prime(z)
+            nabla_b[-l] = error
+            nabla_w[-l] = np.dot(error, activations[-l-1].transpose())
         
         return (nabla_b, nabla_w)
 
