@@ -1,1 +1,1 @@
-# neuralnet_from_scratch
+# Neuralnet From Scratch
